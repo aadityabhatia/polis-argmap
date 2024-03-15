@@ -1,0 +1,20 @@
+---
+title: "Methodology: Content Processing Pipeline"
+---
+
+flowchart LR
+    DataIngestion ==> Embeddings
+    Embeddings ==> CommentModeration
+    TopicModeling ==> Labeling
+    TopicModeling ==> Structure
+    CommentModeration ==> TopicModeling
+    Structure & Labeling ==> Tree
+    Tree ==> Insights
+
+    DataIngestion[Data Ingestion]
+    CommentModeration[Comment Moderation]
+    Labeling[Topic Label Generation]
+    TopicModeling[Topic Modeling]
+    Structure[Argument Generation]
+    Tree[Argument Map]
+    Insights[Actionable Insights]

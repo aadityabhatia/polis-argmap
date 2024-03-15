@@ -1,0 +1,99 @@
+---
+title: "Polis Argument Mapping to Guide Policy Decisions"
+lightbox: true
+listing:
+    id: notebooks
+    type: grid
+    sort: filename asc
+    grid-columns: 4
+    exclude:
+        filename: "*-skip*"
+# toc: false
+toc-expand: false
+---
+
+## Research Objective
+
+**How can technological advances enable us to ingest massive streams of unstructured information, incorporate diverse perspectives and distill them into actionable insights that demonstrably align with public opinion?**
+
+The primary research objective of this study is to explore the use of Natural Language Processing (NLP), Large Language Models (LLMs) and related technologies in providing actionable insights into large troves of public opinion data, specifically from publicly hosted online discussion forums such as [Polis](https://pol.is/) or [Kialo](https://www.kialo.com/) that are [geared towards specific topics or events](https://compdemocracy.org/Case-studies/). This study is crucial in understanding the potential of LLMs in facilitating informed policy decisions for complex problems on a global scale. We explore the following research questions.
+
+### How effectively can language models structure and enable access to large amounts of opinion data?
+
+This involves investigating how these technologies can be leveraged for topic modeling, measuring consensus or discord among opinions, and generating executive summaries of the opinion landscape. A critical aspect of this objective is to quantify and compare the efficiency of automated processes enabled by language models against traditional manual methods.
+
+### What metrics and insights can we generate from embeddings?
+
+Text embeddings are numerical representations of text produced by transformer models that capture semantic meaning of textual data. To explore this, we analyze techniques to cluster statements and opinions, identify outliers, and facilitate topic modeling. Vector search can speed up search and help create a structure around the otherwise unstructured set of statements. We also examine the language models' ability to identify diverse opinions and attempt to quantify the diversity within public opinions, which is essential for understanding the public sentiment.
+
+### How do various language models compare in terms of fine-tuning, performance, and computational costs?
+
+This comparison involves prompt engineering and testing certain models to measure their performance on various tasks. We attempt to estimate the computational cost involved, thereby assessing the practicality and scalability of using language models in real-world policy-making scenarios.
+
+### What are the inherent risks associated with the deployment of language models?
+
+Finally, we discuss the challenges posed by the application of language models in a domain that significantly impacts societal norms and democratic processes. It aims to address concerns related to data bias, ethical implications, the potential for misinformation, and the overall integrity of AI-driven systems in shaping public policy. While language models offer transformative capabilities in analyzing vast, unstructured datasets, they also carry the potential to skew public discourse or influence policy decisions in unintended ways. Addressing these risks is crucial for the responsible and equitable use of AI in democratic deliberation.
+
+
+## Methodology
+
+```{mermaid}
+{{< include pipeline.mmd >}}
+```
+
+## Notebooks
+
+::: {#notebooks}
+:::
+
+## Experimental Setup
+
+### Moderation
+
+In the experiment, the Polis moderators' guidelines are used as prompts for a language model to discern irrelevant statements, labeling them as spam. Each statement is individually processed by the language model for classification. The effectiveness of this approach is then assessed by comparing the language model's spam detection outcomes against the gold standard labeled moderation data previously established by Polis moderators. This comparison aims to evaluate the accuracy of spam detection by various language models.
+
+```{mermaid}
+---
+title: "Experiment: Content Moderation"
+---
+
+{{< include experiment1.mmd >}}
+```
+
+### Topic Modeling
+
+This experiment aims at refining topic modeling by clustering Polis statements, assigning outliers, and generating topic labels to ensure coherent and representative topic categorization. Initially, statements are clustered based on their embeddings, using techniques like UMAP for dimensionality reduction and HDBSCAN for clustering, to form groups that are presumed to contain semantically similar statements. This clustering task depends on model parameters for UMAP and HDBSCAN, and also the choice of embedding model used to calculate statement embeddings. Following clustering, outliers—statements that do not clearly belong to any cluster—are reassigned to the most appropriate clusters, aiming to minimize the Outlier Count and optimize Statement Distribution. These steps result in several metrics: the number of distinct topics identified, the number of outlier statements not fitting well into any cluster, and the distribution of statements across identified topics, ensuring that no single topic is disproportionately large or small.
+
+Afterwards, topic labels are generated for each cluster using a language model, informed by a carefully designed prompt to ensure that the generated labels accurately and comprehensively represent the semantic essence of each topic. This step aids in making the clusters interpretable and useful for downstream analysis.
+
+```{mermaid}
+---
+title: "Experiment: Topic Modeling"
+---
+
+{{< include experiment2.mmd >}}
+```
+
+### Argument Generation and Association
+
+This experiment evaluates the effectiveness of argument generation and association using language models within a deliberative context. The task involves two main activities: first, generating arguments from a set of topic-based statements using a language model; and second, associating these generated arguments with their corresponding statements to assess the relevance and classification accuracy. Additionally, the distribution of votes on arguments is analyzed to gauge public support or disagreement. Key variables influencing this process include the number of arguments generated, the language model's capabilities, the specificity of prompts given to the model, and the use of embedding models for better statement-argument association. The metrics focus on the relevance of the generated arguments to the original statements, the accuracy of the language model in classifying these associations, and the distribution of votes among the generated arguments. This approach aims to explore the potential of language models in producing actionable insights for policy-making and enhancing the engagement and representativeness of arguments in deliberative processes.
+
+```{mermaid}
+---
+title: "Experiment: Argument Generation and Association"
+---
+
+{{< include experiment3.mmd >}}
+```
+
+### Argument Map Generation
+
+In this experiment, we aim to generate argument maps in Argdown format, incorporating topics and arguments derived from prior analyses, and organize these elements hierarchically based on the outcomes of topic modeling. The process involves two primary tasks: the generation of Argdown maps and their hierarchical organization to reflect the structure and relationships among topics and arguments. Variables influencing this process include the number of topics previously generated, the distribution of these topics, the count of arguments associated with each topic, and the choice of embedding model used in the argument and topic association. The experiment's outcome is measured qualitatively based on the readability of the Argdown maps, which serves in assessing the clarity, coherence, and navigability of the generated argument structures. This approach seeks to leverage the structured representation capabilities of Argdown to provide a visually and logically organized overview of the complex relationships and hierarchies among topics and arguments, facilitating better understanding and analysis.
+
+```{mermaid}
+---
+title: "Experiment: Argument Map Generation"
+---
+
+{{< include experiment4.mmd >}}
+```

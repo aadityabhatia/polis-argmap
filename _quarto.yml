@@ -1,0 +1,51 @@
+project:
+  type: website
+  preview:
+    port: 7827
+    browser: false
+    navigate: false
+    timeout: 3600
+
+website:
+  title: "ArgMap"
+  # description: "Polis Argument Generation and Mapping to Guide Policy Decisions"
+  site-url: "https://argmap.screaming.ninja"
+  search: false
+  page-navigation: true
+  image: images/og.png
+  favicon: images/logo.png
+  open-graph: true
+  navbar:
+    logo: images/logo.png
+    background: primary
+    search: false
+
+format:
+  html:
+    toc: true
+    toc-expand: 2
+    code-fold: true
+    smooth-scroll: true
+    page-layout: full
+    fig-align: center
+    theme:
+      light:
+        - sandstone
+        - mermaid.scss
+      dark:
+        # navbar: secondary
+        # - solar
+        - darkly
+        # - mermaid-dark.scss
+    # mermaid:
+    #   theme: dark
+    grid:
+      body-width: 1800px
+
+argdown:
+  sourceHighlighter: web-component
+  mode: web-component
+  webComponent:
+    withoutMaximize: true
+  model:
+    removeTagsFromText: true

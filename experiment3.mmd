@@ -1,0 +1,27 @@
+flowchart LR
+
+    subgraph Metrics
+        ArgumentRelevance(Argument Relevance)
+        LLMClassificationAccuracy[LLM Classification Accuracy]:::selected
+        ArgumentVoteDistribution[Argument Vote Distribution]:::selected
+    end
+
+    subgraph Tasks
+        ArgumentGeneration:::selected
+        ArgumentStatementAssociation:::selected
+        ArgumentGeneration --- ArgumentRelevance
+        ArgumentStatementAssociation --- LLMClassificationAccuracy & ArgumentVoteDistribution
+    end
+
+    subgraph Variables
+        LanguageModel:::selected
+        Prompt:::selected
+        EmbeddingModel:::selected
+
+        ArgumentCount[Argument Count] --- ArgumentGeneration
+        LanguageModel --- ArgumentGeneration & ArgumentStatementAssociation
+        Prompt --- ArgumentGeneration & ArgumentStatementAssociation
+        EmbeddingModel --- ArgumentStatementAssociation
+    end
+
+    classDef selected fill:#8c8

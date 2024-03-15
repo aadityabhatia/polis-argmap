@@ -1,0 +1,22 @@
+flowchart LR
+
+    subgraph Metrics
+        MapReadability(Map Readability)
+    end
+
+    subgraph Tasks
+        direction LR
+        ArgdownMapGeneration[Argdown Map Generation]
+        HierarchicalOrganization[Hierarchical Organization]
+    end
+
+    subgraph Variables
+        direction LR
+        TopicCount
+        TopicDistribution
+        ArgumentCount
+        EmbeddingModel
+    end
+
+    Variables --- Tasks
+    Tasks --- Metrics

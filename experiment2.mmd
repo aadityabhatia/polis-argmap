@@ -1,0 +1,26 @@
+flowchart LR
+
+    subgraph Metrics
+        TopicCount[Topic Count]:::selected
+        OutlierCount[Outlier Count]:::selected
+        StatementDistribution[Statement Distribution]
+        TopicRepresentation(Topic Representation)
+    end
+
+    subgraph Tasks
+        Clustering:::selected
+        Clustering --- TopicCount & OutlierCount & StatementDistribution
+        OutlierAssignment[Outlier Assignment] --- StatementDistribution
+        TopicLabelGeneration[Topic Label Generation] --- TopicRepresentation
+    end
+
+    subgraph Variables
+        ClusteringParameters[Clustering Parameters]:::selected
+        ClusteringParameters --- Clustering
+        EmbeddingModel[Embedding Model] --- Clustering
+        EmbeddingModel --- OutlierAssignment
+        LanguageModel[Language Model] --- TopicLabelGeneration
+        Prompt --- TopicLabelGeneration
+    end
+
+    classDef selected fill:#8c8
