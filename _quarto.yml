@@ -1,5 +1,8 @@
 project:
   type: website
+  render:
+    - index.qmd
+    - docs/
   preview:
     port: 7827
     browser: false
@@ -7,11 +10,15 @@ project:
     timeout: 3600
 
 website:
-  title: "ArgMap"
-  # description: "Polis Argument Generation and Mapping to Guide Policy Decisions"
-  site-url: "https://argmap.screaming.ninja"
-  search: false
+  title: ArgMap
+  description: "Advancing Policy Insights: Opinion Data Analysis and Debate Structuring Using LLMs"
+  site-url: https://argmap.screaming.ninja
+  repo-url: https://github.com/aadityabhatia/polis-argmap/
+  repo-actions: source
+  # reader-mode: true
+  # search: false
   page-navigation: true
+  page-footer: "© 2024 Aaditya Bhatia"
   image: images/og.png
   favicon: images/logo.png
   open-graph: true
@@ -19,11 +26,14 @@ website:
     logo: images/logo.png
     background: primary
     search: false
+    right:
+      - icon: github
+        href: https://github.com/aadityabhatia/polis-argmap
 
 format:
   html:
     toc: true
-    toc-expand: 2
+    toc-expand: 1
     code-fold: true
     smooth-scroll: true
     page-layout: full

@@ -6,10 +6,8 @@ listing:
     type: grid
     sort: filename asc
     grid-columns: 4
-    exclude:
-        filename: "*-skip*"
-# toc: false
-toc-expand: false
+    contents:
+        - docs/
 ---
 
 ## Research Objective
@@ -38,7 +36,7 @@ Finally, we discuss the challenges posed by the application of language models i
 ## Methodology
 
 ```{mermaid}
-{{< include pipeline.mmd >}}
+{{< include /docs/pipeline.mmd >}}
 ```
 
 ## Notebooks
@@ -57,7 +55,7 @@ In the experiment, the Polis moderators' guidelines are used as prompts for a la
 title: "Experiment: Content Moderation"
 ---
 
-{{< include experiment1.mmd >}}
+{{< include /docs/experiment1.mmd >}}
 ```
 
 ### Topic Modeling
@@ -71,7 +69,7 @@ Afterwards, topic labels are generated for each cluster using a language model, 
 title: "Experiment: Topic Modeling"
 ---
 
-{{< include experiment2.mmd >}}
+{{< include /docs/experiment2.mmd >}}
 ```
 
 ### Argument Generation and Association
@@ -83,7 +81,7 @@ This experiment evaluates the effectiveness of argument generation and associati
 title: "Experiment: Argument Generation and Association"
 ---
 
-{{< include experiment3.mmd >}}
+{{< include /docs/experiment3.mmd >}}
 ```
 
 ### Argument Map Generation
@@ -95,5 +93,5 @@ In this experiment, we aim to generate argument maps in Argdown format, incorpor
 title: "Experiment: Argument Map Generation"
 ---
 
-{{< include experiment4.mmd >}}
+{{< include /docs/experiment4.mmd >}}
 ```
