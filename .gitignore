@@ -1,4 +1,6 @@
 *.env
 /_site/
 /.quarto/
+
+*.pyc
 __pycache__

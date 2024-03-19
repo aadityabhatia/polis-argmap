@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
     # trap SIGINT and SIGTERM to ensure graceful exit
     def signal_handler(sig, frame):
-        print(f"{datetime.datetime.now()} Signal {sig} received. Exiting...\n\n")
+        print(f"{datetime.datetime.now()} Signal {sig} received. Exiting.\n\n")
         sys.exit(0)
 
     signal.signal(signal.SIGINT, signal_handler)
@@ -57,14 +57,14 @@ if __name__ == "__main__":
     print(f"{datetime.datetime.now()} Starting Polis ArgMap Experiments...", flush=True)
 
     for dataset in datasets:
-        print(f"{datetime.datetime.now()} Loading Dataset: {dataset}...")
+        print(f"{datetime.datetime.now()} Dataset: {dataset}", flush=True)
 
         for task in args.tasks:
             try:
-                print(f"{datetime.datetime.now()} Running Task: {task}...", flush=True)
+                print(f"{datetime.datetime.now()} Task: {task}", flush=True)
                 Task = getTask(task)
                 Task.run(dataset)
-                print(f"{datetime.datetime.now()} Task Complete: {task}.", flush=True)
+                print(f"{datetime.datetime.now()} Task Complete: {task}", flush=True)
 
             except Exception as e:
                 print(f"{datetime.datetime.now()} ERROR: {e}")

@@ -13,12 +13,11 @@ Device: {torch.cuda.get_device_name(0)}
 Python: {sys.version}
 PyTorch: {torch.__version__}
 CUDA: {torch.version.cuda}
-CUDNN: {torch.backends.cudnn.version()}
-"""
+CUDNN: {torch.backends.cudnn.version()}"""
 
 
-def printTorchDeviceVersion(outputStream=sys.stdout):
-    outputStream.write(getTorchDeviceVersion())
+def printTorchDeviceVersion():
+    print(getTorchDeviceVersion())
 
 
 def requireGPU():
@@ -39,14 +38,13 @@ def getCUDAMemory():
     return free_memory, allocated_memory, total_memory
 
 
-def printCUDAMemory(outputStream=sys.stderr):
+def printCUDAMemory():
     free_memory, allocated_memory, total_memory = getCUDAMemory()
     free_memory = round(free_memory/1024**3, 1)
     allocated_memory = round(allocated_memory/1024**3, 1)
     total_memory = round(total_memory/1024**3, 1)
-    outputStream.write(
-        f"CUDA Memory: {free_memory} GB free, {allocated_memory} GB allocated, {total_memory} GB total\n"
-    )
+    print(f"CUDA Memory: {free_memory} GB free, {allocated_memory} GB allocated, {total_memory} GB total",
+          flush=True, file=sys.stderr)
 
 
 def ensureCUDAMemory(required_memory_gb):
@@ -62,7 +60,7 @@ def ensureCUDAMemory(required_memory_gb):
         f"Insufficient CUDA memory: {round(free_memory/1024**3,1)} GB free, {required_memory_gb} GB required")
 
 
-def loadLanguageModel(outputStream=sys.stdout):
+def loadLanguageModel():
 
     global languageModel
 
@@ -72,7 +70,6 @@ def loadLanguageModel(outputStream=sys.stdout):
     import torch
     from guidance import models
 
-    CUDA_MINIMUM_MEMORY_GB = os.getenv("CUDA_MINIMUM_MEMORY_GB")
     MODEL_ID = os.getenv("MODEL_ID")
     MODEL_REVISION = os.getenv("MODEL_REVISION")
 
@@ -85,13 +82,13 @@ def loadLanguageModel(outputStream=sys.stdout):
     torch.cuda.ipc_collect()
     torch.cuda.empty_cache()
 
-    if CUDA_MINIMUM_MEMORY_GB is not None:
-        ensureCUDAMemory(int(CUDA_MINIMUM_MEMORY_GB))
+    MODEL_MINIMUM_MEMORY_GB = os.getenv("MODEL_MINIMUM_MEMORY_GB")
+    if MODEL_MINIMUM_MEMORY_GB is not None:
+        ensureCUDAMemory(int(MODEL_MINIMUM_MEMORY_GB))
 
-    outputStream.write(
-        f"{datetime.datetime.now()} Initializing language model: {MODEL_ID}...\n")
+    print(f"{datetime.datetime.now()} Initializing language model: {MODEL_ID}...")
     if MODEL_REVISION:
-        outputStream.write(f"Model Revision: {MODEL_REVISION}\n")
+        print(f"Model Revision: {MODEL_REVISION}")
 
     languageModel = models.TransformersChat(
         MODEL_ID,
@@ -99,21 +96,19 @@ def loadLanguageModel(outputStream=sys.stdout):
         device_map="auto",
     )
 
-    outputStream.write(
-        f"{datetime.datetime.now()} Language model initialized.\n")
-    printCUDAMemory(outputStream)
+    print(f"{datetime.datetime.now()} Language model initialized.")
+    printCUDAMemory()
 
     return languageModel
 
 
-def loadEmbeddingModel(outputStream=sys.stdout):
+def loadEmbeddingModel():
     import torch
 
     global embedModel
 
     if embedModel is not None:
         return embedModel
-
 
     EMBED_MODEL_ID = os.getenv("EMBED_MODEL_ID")
 
@@ -126,15 +121,17 @@ def loadEmbeddingModel(outputStream=sys.stdout):
     torch.cuda.ipc_collect()
     torch.cuda.empty_cache()
 
-    outputStream.write(
-        f"{datetime.datetime.now()} Initializing embedding model: {EMBED_MODEL_ID}...\n")
+    EMBED_MODEL_MINIMUM_MEMORY_GB = os.getenv("EMBED_MODEL_MINIMUM_MEMORY_GB")
+    if EMBED_MODEL_MINIMUM_MEMORY_GB is not None:
+        ensureCUDAMemory(int(EMBED_MODEL_MINIMUM_MEMORY_GB))
+
+    print(f"{datetime.datetime.now()} Initializing embedding model: {EMBED_MODEL_ID}...")
 
     from sentence_transformers import SentenceTransformer
     embedModel = SentenceTransformer(EMBED_MODEL_ID)
 
-    outputStream.write(
-        f"{datetime.datetime.now()} Embedding model initialized.\n")
-    printCUDAMemory(outputStream)
+    print(f"{datetime.datetime.now()} Embedding model initialized.")
+    printCUDAMemory()
 
     return embedModel
 

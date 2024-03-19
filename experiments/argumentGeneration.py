@@ -17,8 +17,6 @@ class ArgumentGeneration(Experiment):
 
     @staticmethod
     def run(dataset):
-        print(f"{datetime.datetime.now()} Generating Arguments...", flush=True)
-
         try:
             comments = Comments(dataset).load_from_parquet()
             topics = Topics(dataset).load_from_parquet()
@@ -45,7 +43,9 @@ class ArgumentGeneration(Experiment):
             .get_column('count')
             .to_list())
 
-        print(f"{datetime.datetime.now()} Processing {agreeableComments.height} comments in {len(commentCountByTopic)} topics", flush=True)
+        argumentCount = sum(countArguments(x) for x in commentCountByTopic)
+
+        print(f"{datetime.datetime.now()} Generating {argumentCount} arguments from {agreeableComments.height} comments across {len(commentCountByTopic)} topics.", flush=True)
 
         languageModel = loadLanguageModel()
 
@@ -65,7 +65,8 @@ class ArgumentGeneration(Experiment):
             if topicComments.height == 0:
                 continue
 
-            print(f"{datetime.datetime.now()} Generating Arguments for Topic {topicId}, {topicComments.height} comments, {countArguments(topicComments.height)} arguments...")
+            progress_bar.set_description(f"Generating Arguments for Topic {topicId}")
+            print(f"{datetime.datetime.now()} Topic {topicId}, {topicComments.height} comments, {countArguments(topicComments.height)} arguments.")
 
             args = {
                 'summary': summary,

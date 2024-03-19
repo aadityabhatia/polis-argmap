@@ -60,7 +60,7 @@ class Correlation(Experiment):
             )
             topicArguments = arguments.df.filter(pl.col('topicId') == topicId)
 
-            print(f"{datetime.datetime.now()} Correlating Topic {topicId}, {topicComments.height} comments, {topicArguments.height} arguments, {topicComments.height * topicArguments.height} pairs...")
+            print(f"{datetime.datetime.now()} Correlating Topic {topicId}, {topicComments.height} comments, {topicArguments.height} arguments, {topicComments.height * topicArguments.height} pairs.", flush=True)
             progress_bar.set_description(f"Correlating Topic {topicId}")
 
             args = {
