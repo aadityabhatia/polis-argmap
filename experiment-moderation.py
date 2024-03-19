@@ -1,17 +1,15 @@
-from pprint import pprint
 from dotenv import load_dotenv
-from dataModel import DataModel, Summary, Comments
+from argmap.dataModel import DataModel, Summary, Comments
+from argmap.helpers import loadLanguageModel, printCUDAMemory, printTorchDeviceVersion
+from argmap.guidance import generate_line, generate_phrase
+
 import polars as pl
 from tqdm import tqdm
-import os
 import sys
 import guidance
 from guidance import models, gen, select, instruction, user, assistant
-import torch
 import signal
 import datetime
-print(f"{datetime.datetime.now()} Initializing...")
-
 
 load_dotenv()
 
@@ -26,46 +24,6 @@ results_schema = {
     'classification': pl.Categorical,
     'thoughts': pl.List(pl.String),
 }
-
-
-def cuda_print_memory():
-    free_memory = sum([torch.cuda.mem_get_info(i)[0]
-                      for i in range(torch.cuda.device_count())])
-    total_memory = sum([torch.cuda.mem_get_info(i)[1]
-                       for i in range(torch.cuda.device_count())])
-    allocated_memory = sum([torch.cuda.memory_allocated(i)
-                           for i in range(torch.cuda.device_count())])
-
-    print(f"CUDA Memory: {round(free_memory/1024**3,1)} GB free, {round(allocated_memory/1024**3,1)} GB allocated, {round(total_memory/1024**3,1)} GB total")
-
-
-def cuda_ensure_memory(required_memory_gb):
-    required_memory = required_memory_gb * 1024**3
-    free_memory = sum([torch.cuda.mem_get_info(i)[0]
-                      for i in range(torch.cuda.device_count())])
-    if free_memory < required_memory:
-        print(
-            f"Insufficient CUDA memory: {round(free_memory/1024**3,1)} GB free, {required_memory_gb} GB required")
-        sys.exit(2)
-
-
-# Grammar Specification for Text Generation
-
-@guidance(stateless=True)
-def generate_line(lm, name: str, temperature=0, max_tokens=50, list_append=False):
-    return lm + gen(name=name, max_tokens=max_tokens, temperature=temperature, list_append=list_append, stop=['\n'])
-
-
-@guidance(stateless=True)
-def generate_phrase(lm, name: str, temperature=0, max_tokens=50, list_append=False):
-    return lm + gen(name=name, max_tokens=max_tokens, temperature=temperature, list_append=list_append, stop=['\n', '.'])
-
-
-@guidance(stateless=True)
-def generate_number(lm, name: str, min: int, max: int, list_append=False):
-    return lm + select(list(range(min, max+1)), name=name, list_append=list_append)
-
-# Initialize Language Model
 
 
 @guidance
@@ -520,7 +478,7 @@ def run_experiment(dataset, languageModel, experiment, args):
     )
 
     moderationResults = DataModel(
-        dataset, f'moderation-results-{experiment}', DATA_PATH, schema=results_schema).initialize()
+        dataset, f'moderation-results-{experiment}', schema=results_schema).initialize()
 
     args['results'] = moderationResults
     args['progress_bar'] = progress_bar
@@ -546,43 +504,10 @@ if __name__ == "__main__":
 
     signal.signal(signal.SIGINT, signal_handler)
 
-    OPENDATA_REPO_PATH = os.getenv("OPENDATA_REPO_PATH")
-    DATA_PATH = os.getenv("DATA_PATH")
+    printTorchDeviceVersion()
+    printCUDAMemory()
 
-    # Verify GPU Availability
-
-    if not torch.cuda.is_available():
-        print("No CUDA device found")
-        sys.exit(2)
-
-    print(f"""
-    Device: {torch.cuda.get_device_name(0)}
-    Python: {sys.version}
-    PyTorch: {torch.__version__}
-    CUDA: {torch.version.cuda}
-    CUDNN: {torch.backends.cudnn.version()}
-    """)
-
-    cuda_print_memory()
-
-    torch.cuda.ipc_collect()
-    torch.cuda.empty_cache()
-
-    CUDA_MINIMUM_MEMORY_GB = os.getenv("CUDA_MINIMUM_MEMORY_GB")
-    MODEL_ID = os.getenv("MODEL_ID")
-
-    if MODEL_ID is None:
-        print("MODEL_ID environment variable is required.")
-        sys.exit(3)
-
-    if CUDA_MINIMUM_MEMORY_GB is not None:
-        cuda_ensure_memory(int(CUDA_MINIMUM_MEMORY_GB))
-
-    print(f"{datetime.datetime.now()} Initializing language model: {MODEL_ID}...")
-    languageModel = models.TransformersChat(MODEL_ID, device_map="auto")
-
-    print(f"{datetime.datetime.now()} Language model initialized.")
-    cuda_print_memory()
+    languageModel = loadLanguageModel()
 
     # specify default dataset
     datasets = ["american-assembly.bowling-green"]
@@ -595,16 +520,13 @@ if __name__ == "__main__":
     for dataset in datasets:
         print(f"{datetime.datetime.now()} Loading dataset: {dataset}...")
 
-        comments = Comments(dataset, dataPath=DATA_PATH).load_from_csv(f'{OPENDATA_REPO_PATH}/{dataset}/comments.csv')
-        summary = Summary(OPENDATA_REPO_PATH, dataset)
+        comments = Comments(dataset).load_from_csv()
+        summary = Summary(dataset)
 
-        print(f"""
+        print(f"""\
 Dataset: {dataset}
 Topic: {summary.topic}
-Comments: {comments.df.height}
-""")
-
-        # pprint(comments.df)
+Comments: {comments.df.height}""")
 
         experiments = create_experiments(comments, summary)
 
