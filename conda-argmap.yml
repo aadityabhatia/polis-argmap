@@ -1,0 +1,46 @@
+name: argmap
+
+channels:
+  - nvidia
+  - pytorch
+  - conda-forge
+  - defaults
+
+dependencies:
+  # base
+  - python>=3.11
+  - pytorch::pytorch-cuda
+  - pytorch::pytorch
+  - ipykernel
+  - ipywidgets
+  - python-dotenv
+  - polars
+
+  # topic modeling
+  - spacy
+  # - spacy-model-en_core_web_lg # get this from huggingface instead to avoid spacy downgrade
+  - sentence-transformers
+  - hvplot
+  - nbformat
+  - datashader
+  - scikit-image
+  - plotly>=5.19.0 # newer version needed for certain plots in bertopic
+  # - seaborn
+  # - matplotlib
+
+  # language model
+  - transformers
+  - accelerate
+  - optimum
+
+  - pip
+  - pip:
+    - bertopic
+    - guidance
+    - https://github.com/AutoGPTQ/AutoGPTQ
+    - https://huggingface.co/spacy/en_core_web_lg/resolve/main/en_core_web_lg-any-py3-none-any.whl
+
+  # postgres support
+  # - connectorx
+  # - sqlalchemy
+  # - psycopg2
