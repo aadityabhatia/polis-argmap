@@ -6,7 +6,7 @@ import os
 import sys
 import signal
 from argmap.helpers import printTorchDeviceVersion, printCUDAMemory, loadLanguageModel
-from experiments import getTask, taskList
+from tasks import getTask, taskList
 import datetime
 
 load_dotenv()
@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
         prog="polis-argmap",
-        description="Run experiments on Polis datasets using ArgMap",
+        description="Run tasks on Polis datasets using ArgMap",
         epilog="Source: https://github.com/aadityabhatia/polis-argmap"
     )
 
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     sys.stdout = args.output
 
     print("=" * 80)
-    print(f"{datetime.datetime.now()} Starting Polis ArgMap Experiments...", flush=True)
+    print(f"{datetime.datetime.now()} Starting Polis ArgMap Tasks...", flush=True)
 
     for dataset in datasets:
         print(f"{datetime.datetime.now()} Dataset: {dataset}", flush=True)

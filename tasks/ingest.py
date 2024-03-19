@@ -1,14 +1,14 @@
 import datetime
 import os
 
-from .experiment import Experiment
+from .task import Task
 from dotenv import load_dotenv
 from argmap.dataModel import Summary, Comments
 from argmap.helpers import loadEmbeddingModel
 
 import polars as pl
 
-class Ingestion(Experiment):
+class Ingestion(Task):
 
     @staticmethod
     def run(dataset):

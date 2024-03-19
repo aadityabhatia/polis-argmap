@@ -1,4 +1,4 @@
-from .experiment import Experiment
+from .task import Task
 
 import guidance
 from guidance import instruction, user, assistant, select
@@ -13,7 +13,7 @@ import os
 import polars as pl
 from pprint import pprint
 
-class ArgumentGeneration(Experiment):
+class ArgumentGeneration(Task):
 
     @staticmethod
     def run(dataset):

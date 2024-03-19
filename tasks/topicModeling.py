@@ -1,4 +1,4 @@
-from .experiment import Experiment
+from .task import Task
 from argmap.guidance import generate_phrase
 from argmap.dataModel import Summary, Comments, Topics, HierarchicalTopics
 import datetime
@@ -17,7 +17,7 @@ from guidance import user, assistant, instruction
 from sklearn.metrics import silhouette_score
 
 
-class TopicModeling(Experiment):
+class TopicModeling(Task):
 
     @staticmethod
     def run(dataset, languageModel=None):

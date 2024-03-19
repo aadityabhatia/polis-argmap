@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-class Experiment(ABC):
+class Task(ABC):
     requiresLanguageModel = False
 
     @staticmethod

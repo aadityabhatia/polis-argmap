@@ -1,6 +1,6 @@
-from .experiment import Experiment
+from .task import Task
 
-class Moderation(Experiment):
+class Moderation(Task):
     def __init__(self, param):
         self.param = param
 

@@ -1,4 +1,4 @@
-from .experiment import Experiment
+from .task import Task
 from argmap.guidance import generate_line
 
 import os
@@ -11,7 +11,7 @@ from argmap.helpers import loadLanguageModel
 from argmap.dataModel import Comments, Arguments, ArgumentCommentMap
 
 
-class Correlation(Experiment):
+class Correlation(Task):
 
     @staticmethod
     def run(dataset):

@@ -1,11 +1,11 @@
-from .experiment import Experiment
+from .task import Task
 import datetime
 from argmap.dataModel import DataModel, Topics, Arguments, ArgumentCommentMap, Votes
 
 import polars as pl
 
 
-class Scoring(Experiment):
+class Scoring(Task):
 
     @staticmethod
     def run(dataset):
