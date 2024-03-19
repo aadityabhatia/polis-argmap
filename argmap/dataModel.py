@@ -2,11 +2,15 @@ import polars as pl
 import sys
 import os
 
+# this allows categorical data from various sources to be combined and handled gracefully; performance cost is acceptable
+pl.enable_string_cache()
+
 
 class Summary:
-    def __init__(self, openDataRepoPath, dataset):
+    def __init__(self, dataset):
         self.dataset = dataset
         import csv
+        openDataRepoPath = os.getenv("OPENDATA_REPO_PATH")
         csv_path = os.path.join(openDataRepoPath, dataset, 'summary.csv')
         with open(csv_path, newline='') as csvfile:
             reader = csv.reader(csvfile)
@@ -27,22 +31,30 @@ class DataModel:
     filename = None
     dbURI = None
     schema = None
+    dataset = None
+    table = None
 
-    def __init__(self, dataset, table=None, dataPath=None, dbURI=None, schema=None, df=None):
+    def __init__(self, dataset, table=None, dataPath=None, schema=None, df=None):
 
-        table = self.__class__.__name__.lower() if table is None else table
+        dataPath = dataPath or os.getenv("DATA_PATH")
+        self.dataset = dataset
+        table = table or self.__class__.__name__.lower()
+        self.table = table
         self.dbTable = f"{dataset}-{table}".replace('.', '-')
+        self.dbURI = os.getenv("DB_CONNECTION_URI")
+
+        if schema is not None:
+            self.schema = schema
 
         if df is not None:
             if not isinstance(df, pl.DataFrame):
                 df = pl.from_pandas(df)
             self.df = df
-            self.schema = df.schema
 
-        if schema is not None:
-            self.schema = schema
-
-        self.dbURI = dbURI
+            if self.schema is None:
+                self.schema = df.schema
+            else:
+                self.df = self.df.cast(self.schema)
 
         if dataPath is not None:
             self.filename = f'{dataPath}/{dataset}/{table}.parquet'
@@ -53,9 +65,9 @@ class DataModel:
             self.df = pl.DataFrame(schema=self.schema)
         return self
 
-    def preprocess(self):
+    def preprocess(self, lazyFrame: pl.LazyFrame) -> pl.LazyFrame:
         """Override this method to preprocess the dataframe after loading from CSV"""
-        return self
+        return lazyFrame
 
     def save(self):
         if self.dbURI is not None:
@@ -64,13 +76,21 @@ class DataModel:
             self.df.write_parquet(self.filename)
         return self
 
-    def load_from_csv(self, csv_path, **kwargs):
-        self.df = pl.read_csv(csv_path)
-        self.preprocess()
+    def load_from_csv(self, **kwargs):
+        openDataRepoPath = os.getenv("OPENDATA_REPO_PATH")
+        csv_path = os.path.join(
+            openDataRepoPath, self.dataset, f'{self.table}.csv')
+
+        lazyFrame = pl.scan_csv(csv_path)
+
+        lazyFrame = self.preprocess(lazyFrame)
+
         if self.schema is not None:
-            self.df = self.df.cast(self.schema)
+            lazyFrame = lazyFrame.cast(self.schema)
         else:
-            self.schema = self.df.schema
+            self.schema = lazyFrame.schema
+
+        self.df = lazyFrame.collect()
         return self
 
     def load_from_database(self):
@@ -130,10 +150,11 @@ class DataModel:
 
 class Arguments(DataModel):
     schema = {
-        'topicId': pl.Int64,
-        'argumentId': pl.Int64,
+        'topicId': pl.Int16,
+        'argumentId': pl.UInt16,
         'argumentTitle': pl.String,
         'argumentContent': pl.String,
+        'thoughts': pl.List(pl.String),
     }
 
     def get(self, topicId):
@@ -158,37 +179,94 @@ class Arguments(DataModel):
 class Comments(DataModel):
 
     schema = {
-        "timestamp": pl.Int64,
-        "commentId": pl.UInt16,
-        "authorId": pl.UInt16,
-        "agrees": pl.UInt16,
-        "disagrees": pl.UInt16,
-        "moderated": pl.Int8,
-        "commentText": pl.String,
-        "agreeability": pl.Float32,
+        'timestamp': pl.Int64,
+        'commentId': pl.UInt16,
+        'authorId': pl.UInt16,
+        'agrees': pl.UInt16,
+        'disagrees': pl.UInt16,
+        'moderated': pl.Int8,
+        'commentText': pl.String,
+        'agreeability': pl.Float32,
     }
 
-    def get(self, topicId):
+    def get(self, topicId, quantile=None, agreeabilityThreshold=None):
+        """Get agreeable comments from a specific topic."""
         predicate = (pl.col('topic') == topicId)
+        if agreeabilityThreshold is not None:
+            predicate = predicate & (
+                pl.col('agreeability') >= agreeabilityThreshold)
+        if quantile is not None and agreeabilityThreshold is None:
+            agreeabilityThreshold = (
+                self.df
+                .filter(predicate)
+                .get_column('agreeability')
+                .quantile(quantile))
+            predicate = predicate & (
+                pl.col('agreeability') >= agreeabilityThreshold)
         return self.df.filter(predicate)
 
-    # agreeability is the difference between agrees and disagrees, normalized by the sum of the two
-    def preprocess(self):
-        self.df = self.df.rename({'comment-body': 'commentText',
-                                  'author-id': 'authorId', 'comment-id': 'commentId'})
-        self.df = self.df.drop('datetime')
-        self.df = self.df.with_columns(agreeability=(pl.col('agrees') / (sys.float_info.epsilon + pl.col('agrees') + pl.col('disagrees'))))
-        return self
+    def getAgreeableComments(self, agreeabilityThreshold: float = None, quantile: float = None):
+        """Get comments that have been accepted during moderation and are above specified agreeability threshold.
+        If quantile is specified, agreeabilityThreshold is ignored and calculated based on agreeability distribution.
+        """
+
+        if agreeabilityThreshold is None and quantile is None:
+            quantile = 0.1
+
+        if quantile is not None:
+            agreeabilityThreshold = (
+                self.df
+                .filter(moderated=1)
+                .get_column('agreeability')
+                .quantile(quantile))
+
+        return self.df.filter(
+            (pl.col('agreeability') >= agreeabilityThreshold) &
+            (pl.col('moderated') == 1)
+        )
+
+    # agreeability is the proportion of votes that agrees
+    def preprocess(self, lazyFrame: pl.LazyFrame) -> pl.LazyFrame:
+        return (
+            lazyFrame
+            .rename({'comment-body': 'commentText', 'author-id': 'authorId', 'comment-id': 'commentId'})
+            .drop('datetime')
+            .with_columns(
+                agreeability=(
+                    pl.when(pl.col('agrees') +
+                            pl.col('disagrees') == 0).then(0)
+                    .otherwise(
+                        pl.col('agrees') / (pl.col('agrees') + pl.col('disagrees'))))
+            )
+        )
+
+
+class Votes(DataModel):
+    schema = {
+        'commentId': pl.UInt16,
+        'voterId': pl.UInt16,
+        'vote': pl.Int8,
+    }
+
+    def preprocess(self, lazyFrame: pl.LazyFrame) -> pl.LazyFrame:
+        return (
+            lazyFrame
+            .rename({'comment-id': 'commentId', 'voter-id': 'voterId'})
+            .filter(pl.col('vote') != 0)
+            .sort('timestamp')
+            .group_by('commentId', 'voterId')
+            .last()
+        )
 
 
 class ArgumentCommentMap(DataModel):
 
     schema = {
-        'commentId': pl.Int64,
-        'topicId': pl.Int64,
-        'predictedArgumentId': pl.Int64,
-        'predictedArgumentReasoning': pl.List(pl.String),
-        'predictedArgumentRelationship': pl.Categorical,
+        'commentId': pl.UInt16,
+        'topicId': pl.Int16,
+        'argumentId': pl.UInt16,
+        'relationship': pl.Categorical,
+        'reasoning': pl.List(pl.String),
     }
 
     def get(self, topicId):
@@ -197,6 +275,10 @@ class ArgumentCommentMap(DataModel):
 
 
 class Topics(DataModel):
+
+    schema = {
+        'Topic': pl.Int16,
+    }
 
     def get(self, topicId):
         predicate = (pl.col('Topic') == topicId)
