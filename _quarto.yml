@@ -39,7 +39,6 @@ format:
     theme:
       light:
         - sandstone
-        - mermaid.scss
       dark:
         - darkly
     mermaid:
