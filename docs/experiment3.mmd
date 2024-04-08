@@ -9,8 +9,8 @@ flowchart LR
     subgraph Tasks
         ArgumentGeneration:::selected
         ArgumentStatementAssociation:::selected
-        ArgumentGeneration --- ArgumentRelevance
-        ArgumentStatementAssociation --- LLMClassificationAccuracy & ArgumentVoteDistribution
+        ArgumentGeneration ---> ArgumentRelevance
+        ArgumentStatementAssociation ---> LLMClassificationAccuracy & ArgumentVoteDistribution
     end
 
     subgraph Variables
@@ -18,10 +18,8 @@ flowchart LR
         Prompt:::selected
         EmbeddingModel:::selected
 
-        ArgumentCount[Argument Count] --- ArgumentGeneration
-        LanguageModel --- ArgumentGeneration & ArgumentStatementAssociation
-        Prompt --- ArgumentGeneration & ArgumentStatementAssociation
-        EmbeddingModel --- ArgumentStatementAssociation
+        ArgumentCount[Argument Count] ---> ArgumentGeneration
+        LanguageModel ---> ArgumentGeneration & ArgumentStatementAssociation
+        Prompt ---> ArgumentGeneration & ArgumentStatementAssociation
+        EmbeddingModel ---> ArgumentStatementAssociation
     end
-
-    classDef selected fill:#8c8

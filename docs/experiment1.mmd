@@ -1,21 +1,22 @@
 flowchart LR
     subgraph Metrics
-        Accuracy:::selected
-        Precision:::selected
-        FalsePositiveRate:::selected
-        UnsureRate:::selected
+        Accuracy
+        Precision
+        FalsePositiveRate
+        UnsureRate
     end
 
     subgraph Tasks
-        Classification --- Accuracy & Precision & FalsePositiveRate & UnsureRate
-        Classification[Classification: Spam Detection]:::selected
+        Classification ---> Accuracy & Precision & FalsePositiveRate & UnsureRate
+        Classification[Classification: Spam Detection]
     end
 
     subgraph Variables
-        Prompt & LanguageModel[Language Model] --- Classification
-        TargetLabels[Number of Target Labels]:::selected --- Classification
-        Examples[Use of Examples]:::selected --- Classification
-        ReasoningTechnique[Reasoning Technique]:::selected --- Classification
+        TargetLabels[Target Labels]
+        TargetLabels --> Classification
+        %% TargetLabels --> ThreeClass[ACCEPT, UNSURE, REJECT]
+        %% TargetLabels --> SevenClass[ACCEPT, UNSURE, \nSPAM, IRRELEVANT, \nUNPROFESSIONAL, SCOPE, COMPLEX]
+        %% ThreeClass & SevenClass --> Classification
+        ReasoningTechnique[Reasoning Technique] --> Classification
+        Examples[Use of Examples] --> Classification
     end
-
-    classDef selected fill:#8c8

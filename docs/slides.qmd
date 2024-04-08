@@ -1,0 +1,618 @@
+---
+title: Advancing Policy Insights
+subtitle: Opinion Data Analysis and Discourse Structuring Using LLMs
+description: Slides for Thesis Defense
+author:
+    - Aaditya (Sonny) Bhatia
+institute:
+    - "Advisor: Dr. Gita Sukthankar"
+    - University of Central Florida
+date: 2024-04-03
+image: /images/card-slides-screens-analysis.webp
+bibliography: references.bib
+
+format:
+  revealjs:
+    center: true
+    transition: slide
+    default-timing: 60
+    preview-links: true
+    link-external-newwindow: true
+    link-external-icon: true
+    fig-align: center
+    code-block-height: 800px
+    code-overflow: wrap
+    tbl-cap-location: bottom
+    slide-number: true
+    theme: serif
+    mermaid:
+      theme: neutral
+    width: 1600
+    height: 900
+
+filters:
+  - /usr/local/bin/argdown-filter
+---
+
+# Introduction {timing=15}
+
+## Context {timing=60}
+
+#### Policy decisions pose a complex, [wicked problem](https://en.wikipedia.org/wiki/Wicked_problem) [^1] [^2]
+- Effectiveness determined by solving it; single attempt
+- Measuring impact will shift problem
+- Public discourse helps shape solutions; crucial for policy-making
+
+#### Determining public opinion
+- Surveys and polls -> Social Media -> Discussion Platforms
+- People willing to express freely
+- Digital platforms provide a wealth of data
+- Unstructured, vast, and complex
+
+[^1]: characterized by no definitive formulation, no stopping rule, no specific optimization criteria, and no right/wrong solutions
+[^2]: [@conklin_dialogue_2006]
+
+## Background {timing=60}
+
+:::: {.columns}
+::: {.column width="70%"}
+- [Issue Based Information System (IBIS)](https://en.wikipedia.org/wiki/Issue-based_information_system) [-@kunz_issues_1970]
+    - gIBIS [-@conklin_gibis_1988]
+    - [Compendium](https://projects.kmi.open.ac.uk/compendium/) [-@conklin_facilitated_2001]
+    - [Deliberatorium](https://deliberatorium.org/homepage/research.html)[-@klein_supporting_2008]
+    - [DebateGraph](https://debategraph.org/) (2008)
+    - [Polis](https://compdemocracy.org/Polis/) (2016)
+    - [Kialo](https://www.kialo.com/tour) (2017)
+
+- Large Language Models
+    - Summarization, information extraction - derive insights
+    - Classification - content moderation
+    - Model semantic relationships - measure support
+:::
+
+::: {.column width="30%"}
+![Issue Based Information System relies on three types of nodes and nine relationship edges. It is the most commonly used AI argumentation approach that provides the basis for several other platforms. [@conklin_gibis_1988]](/images/ibis.png){fig-align="center" .lightbox}
+:::
+::::
+
+## Problem Statement {timing=30}
+
+How can LLMs enable us to
+
+- ingest massive streams of unstructured information
+- incorporate diverse perspectives, and
+- distill them into actionable insights, that
+- align with public opinion?
+
+## Research Questions {timing=30}
+
+- How effectively can LLMs structure and enable access to large amounts of opinion data?
+
+- What metrics and insights can we generate from embeddings?
+
+- What are the inherent risks associated with the deployment of LLMs?
+
+# Related Works {timing=0}
+
+## gIBIS {timing=60}
+
+:::: {.columns}
+::: {.column width="60%"}
+- Networked decision support system [@conklin_gibis_1988]
+- Structured conversation using
+    - Issues
+    - Positions
+    - Arguments
+- Helped identify underlying assumptions
+- Promoted divergent and convergent thinking
+- Limited by structure, learning curve, scalability
+- Led to development of [Compendium](https://projects.kmi.open.ac.uk/compendium/)
+:::
+
+::: {.column width="40%"}
+![gIBIS application supports several types of nodes and links for structured thinking. [@conklin_gibis_1988]](/images/gIBIS.png){fig-align="right" height="700px"}
+:::
+::::
+
+## Polis {timing=90}
+
+:::: {.columns}
+::: {.column width="60%"}
+- "Real-time system for gathering, analyzing and understanding" public opinion [@small_polis_2021]
+- Developed as an open source platform for public discourse
+- Published several [case studies](https://compdemocracy.org/case-studies/)
+- Participants post short messages and vote on others
+- Polis algorithm ensures exposure to diverse opinions
+- $\vec{comments} \times \vec{votes} =$ opinion matrix
+    - fed into statistical models
+    - understand where people agree or disagree
+:::
+
+::: {.column width="40%"}
+![Polis live report from [Townhall meeting in Bowling Green, Kentucky](https://compdemocracy.org/Case-studies/2018-kentucky/) that took place in 2018.](/images/polis-report-screenshot-2.png){fig-align="center"}
+:::
+::::
+
+## Crowd-Scale Deliberation for Complex Problems {.smaller timing=90}
+
+:::: {.columns}
+
+::: {.column}
+- [Deliberatorium](https://deliberatorium.org/) [@klein_crowd-scale_2022]
+- Knowledge Schema: QuAACR
+    - Questions
+    - Answers
+    - Arguments (+, -)
+    - Criteria
+    - Ratings
+    - _Decision_: Group Consensus
+- Attention Mediation determines next deliberation actions
+    - Ideation: Generate more answers
+    - Assessment: Evaluate answers
+    - Selection: Pick best answers
+- Metrics: Support, Pareto-optimality, Controversiality, Maturity, Decision confidence, Value of information, User Expertise
+:::
+
+::: {.column}
+!["Wisdom of the crowd" is used to generate a deliberation map. This produces analytics that are evaluated across several metrics and fed into an attention mediation system, which determines which actions should be taken next and which portions of the tree need the most attention. Those posts are surfaced to the participants for further discussion.  [@klein_crowd-scale_2022]](/images/crowd-scale.png)
+
+:::
+::::
+
+## D-Agree Crowd-Scale Discussion {timing=60}
+
+- Automated agent to facilitate online discussion [@ito_agent_2022]
+- IBIS-based discussion representation
+- Extracts and analyzes discussion structures from online discussions
+- Posts facilitation messages to incentivize participants and grow IBIS tree
+- Best results when agent augmented human facilitators [@hadfi_augmented_2022]
+- Results
+    - Use of the agent produced more ideas for any given issue
+    - Agent had 1.4 times more replies and 6 times shorter response intervals
+    - Increased user satisfaction
+
+# Methodology {timing=30}
+
+<br>
+
+```{mermaid}
+%% | file: /docs/pipeline.mmd
+```
+
+## Data {.smaller timing=60}
+
+- **Summary Statistics**: conversation topic, number of participants, total comments, total votes
+- **Comments**: author, comment text, moderated, agree votes, disagree votes
+- **Votes**: voter ID, comment ID, timestamp, vote
+- **Participant-Vote Matrix**: participant ID, group ID, n-votes, n-agree, n-disagree, comment ID...
+- **Stats History**: votes, comments, visitors, voters, commenters
+
+Dataset   | Participants | Comments | Accepted
+----------|-------------:|---------------:|---------:
+american-assembly.bowling-green     | 2031  | 896  | 607
+scoop-hivemind.biodiversity         | 536   | 314  | 154
+scoop-hivemind.taxes                | 334   | 148  | 91
+scoop-hivemind.affordable-housing   | 381   | 165  | 119
+scoop-hivemind.freshwater           | 117   | 80   | 51
+scoop-hivemind.ubi                  | 234   | 78   | 71
+
+: Summary of datasets used in the study
+
+::: {.aside}
+Source: [github.com/compdemocracy/openData](https://github.com/compdemocracy/openData)
+:::
+
+## Embeddings {timing=120 .smaller}
+
+:::: {.columns}
+
+::: {.column width="60%"}
+- Numerical vectors; semantical meaning of a word or sentence
+- Transformer embeddings are contextually relevant; used in LLM inference
+    - e.g. "bank" could be a financial institution or a river side
+- Calculated at comment level using [Sentence Transformers library](https://www.sbert.net/)
+- Models considered
+    - [intfloat/e5-mistral-7b-instruct](https://huggingface.co/intfloat/e5-mistral-7b-instruct)
+    - [WhereIsAI/UAE-Large-V1](https://huggingface.co/WhereIsAI/UAE-Large-V1)
+    - OpenAI/text-embedding-ada-002
+    - OpenAI/text-embedding-3-large
+- Language Model Selection Criteria
+    - Open weights
+    - Clustering performance on [HuggingFace MTEB](https://huggingface.co/spaces/mteb/leaderboard)
+    - Memory footprint
+:::
+
+::: {.column width="40%"}
+![Transformer embeddings vectors numerically represent the semantical meaning different words that can be used for clustering or simple calculations. [Source](https://www.technologyreview.com/2015/09/17/166211/king-man-woman-queen-the-marvelous-mathematics-of-computational-linguistics/)](/images/embeddings.png){fig-align="center"}
+:::
+::::
+
+::: {.aside}
+Reference: [osanseviero.github.io/hackerllama/blog/posts/sentence_embeddings](https://osanseviero.github.io/hackerllama/blog/posts/sentence_embeddings/)
+:::
+
+## Text Generation {.smaller timing=120}
+
+:::: {.columns}
+::: {.column width="60%"}
+- Models Considered
+    - [Llama 2 13B Chat](https://huggingface.co/meta-llama/Llama-2-13b-chat-hf)
+    - [Mistral 7B Instruct v0.2](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2)
+    - [Mixtral 8x7B Instruct 4-bit Quantized](https://huggingface.co/TheBloke/Mixtral-8x7B-Instruct-v0.1-GPTQ)
+
+- [Guidance](https://github.com/guidance-ai/guidance)
+    - Python-based framework developed by Microsoft Research
+    - Constrain generation using regular expressions, context-free grammars
+    - Interleave control and generation seamlessly
+
+```{.python code-line-numbers="|7|8|9|"}
+lm += f"""\
+The following is a character profile for an RPG game in JSON format.
+```json
+{{
+    "id": "{id}",
+    "description": "{description}",
+    "name": "{gen('name', stop='"')}",
+    "age": {gen('age', regex='[0-9]+', stop=',')},
+    "armor": "{select(options=['leather', 'chainmail', 'plate'], name='armor')}",
+    "weapon": "{select(options=valid_weapons, name='weapon')}",
+    "class": "{gen('class', stop='"')}",
+    "mantra": "{gen('mantra', stop='"')}",
+    "strength": {gen('strength', regex='[0-9]+', stop=',')},
+    "items": ["{gen('item', list_append=True, stop='"')}", "{gen('item', list_append=True, stop='"')}", "{gen('item', list_append=True, stop='"')}"]
+}}```"""
+```
+:::
+
+::: {.column width="40%"}
+![Example output produced by guidance. The green highlighted text is generated by the LLM, while rest is programatically inserted into the context. Inference is significantly faster since the model produces fewer tokens. Output format is strictly enforced using stop criteria, regular expressions, and fixed options.](/images/guidance-2.png){fig-align="center"}
+:::
+::::
+
+## Comment Moderation {timing=30}
+
+- Retrospective analysis that simulates real-time moderation
+- Goal is to identify spam, irrelevant comments, and those that violate [Polis moderation guidelines](https://compdemocracy.org/moderation/)
+- Framed as a multi-class classification task for spam detection
+- Gold-standard labels available in source dataset
+
+```{mermaid}
+%% | file: /docs/experiment1.mmd
+```
+
+## Instructions: Three-Class Classification {timing=30}
+
+```{.stretch code-line-numbers="|1-2|5-6|10-12|21-25"}
+Discussion Title: Improving Bowling Green / Warren County
+Discussion Question: What do you believe should change in Bowling Green/Warren County in order to make it a better place to live, work and spend time?
+
+---
+You will be presented with comments posted on Polis discussion platform.
+Classify each comment objectively based on whether it meets the given guidelines.
+
+---
+Classifications:
+- ACCEPT: Comment is coherent, makes a suggestion, or presents a real problem or issue.
+- UNSURE: Unclear whether the comment meets the guidelines for ACCEPT.
+- REJECT: Comment should definitely be rejected for one of the reasons listed below.
+
+---
+Reasons for REJECT:
+- SPAM: Comments which are spam and add nothing to the discussion.
+- COMPLEX: Comments which state more than one idea. It is difficult to determine the where another person would agree or disagree.
+
+---
+Output format:
+CLASSIFICATION: One of the following based on given guidelines: ACCEPT, UNSURE, REJECT.
+THOUGHT: Express the reasoning for REJECT classification.
+Am I certain: Answer with YES or NO. If unsure, state NO.
+REASON: One of the following based on given guidelines: SPAM, COMPLEX
+EXPLANATION: Provide an explanation for why the comment was classified as REJECT.
+```
+
+## Output: Three-Class Classification {timing=30}
+
+![](/images/screenshot-comment-moderation-3-class.png)
+
+## Use of Examples {timing=30}
+
+![](/images/screenshot-comment-moderation-examples.png)
+
+## Second-Thought Technique {timing=30}
+
+![](/images/screenshot-comment-moderation-second-thought.png)
+
+- False Positives cause more harm
+- Allow the model to turn a REJECT into UNSURE
+
+## Instructions: Seven-Class Classification {timing=30}
+
+```{.stretch code-line-numbers="|6-17|21-22"}
+Discussion Title: Improving Bowling Green / Warren County
+Discussion Question: What do you believe should change in Bowling Green/Warren County in order to make it a better place to live, work and spend time?
+
+---
+Classify each comment objectively based on the following guidelines:
+- ACCEPT: mentions a real problem related to the discussion.
+- ACCEPT: recommends a realistic and actionable solution related to the discussion.
+- ACCEPT: makes a sincere suggestion related to the discussion.
+- IRRELEVANT: frivolous, irrelevant, unrelated to the discussion.
+- IRRELEVANT: does not contribute to the discussion in a meaningful way.
+- SPAM: incoherent or lacks seriousness.
+- SPAM: provides neither a problem nor a solution.
+- UNPROFESSIONAL: the language is informal, colloquial, disrespectful or distasteful.
+- SCOPE: cannot be addressed within the scope of original question.
+- COMPLEX: introduces multiple ideas, even if they are related to the discussion.
+- COMPLEX: discusses distinct problems, making it difficult to determine where another person would agree or disagree.
+- UNSURE: may be accepted if it appears somewhat related to the discussion.
+
+---
+Output format:
+CLASSIFICATION: One of the following based on given guidelines: ACCEPT, UNSURE, SPAM, IRRELEVANT, UNPROFESSIONAL, SCOPE, COMPLEX.
+EXPLANATION: Provide an explanation for the classification.
+```
+
+## Instructions: Comment Deconstruction {timing=30}
+
+```{.stretch code-line-numbers="|3-5"}
+Output format:
+
+PROBLEM: The specific problem mentioned in the comment. If only an action is suggested and no problem is explicitly mentioned, state None.
+ACTION: What suggestion or change is proposed. If only a problem is mentioned and no action is suggested, state None.
+HOW MANY IDEAS: Number of distinct ideas introduced in the comment.
+THOUGHT: Deliberate about how the comment should be classified.
+CLASSIFICATION: ACCEPT, UNSURE, SPAM, COMPLEX.
+REASON: If comment was not classified as ACCEPT, explain.
+```
+
+## Output: Comment Deconstruction and Thought Statements {timing=30}
+
+![](/images/screenshot-comment-moderation-7-class.png)
+
+## Experimental Configurations {timing=30}
+
+Config | Target Classes | Examples | Deconstruction | CoT Technique
+:-----:|:-------------:|:--------:|:--------------:|--------------------
+1      | 3             | No       | No             | N/A
+2      | 3             | Yes      | No             | N/A
+3      | 3             | No       | No             | Thought after rejection
+4      | 3             | Yes      | No             | Thought after rejection
+5      | 7             | No       | No             | N/A
+6      | 7             | No       | No             | Thought before decision
+7      | 7             | No       | Yes            | Thought before decision
+8      | 7             | No       | Yes            | N/A
+9      | 3             | No       | Yes            | Thought before decision
+
+## Topic Modeling {timing=30}
+
+```{mermaid}
+%% | file: /docs/topic-modeling.mmd
+```
+
+::: {.aside}
+Pipeline implemented using [BERTopic framework](https://maartengr.github.io/BERTopic/) [@grootendorst_bertopic_2022]
+:::
+
+## UMAP {timing=45}
+
+- [Uniform Manifold Approximation and Projection](https://umap-learn.readthedocs.io/)
+    - balances global structure against local relationships between data points
+- [PCA](https://en.wikipedia.org/wiki/Principal_component_analysis) preserves global structure
+- Optimized:
+    - `n_neighbors`, `min_dist`, `n_components`, `metric`
+
+```{mermaid .r-fit-text}
+flowchart LR
+    Embeddings["Transfomer Embeddings \n 1024-4096 dimensions"] --> UMAP{"UMAP"}
+    UMAP --> ReducedEmbeddings["Reduced Embeddings \n 10-100 dimensions"]
+```
+
+## HDBSCAN {timing=15}
+
+- [Hierarchical density-based spatial clustering of applications with noise](https://hdbscan.readthedocs.io/)
+- Unsupervised learning algorithm to find clusters (dense regions) in a dataset
+- Default values generated reasonable results; optimized by hit-and-trial
+
+## c-TF-IDF {timing=90}
+- Goal: Identify most important words / phrases within each cluster / topic
+- Count-based vectorizer transforms text into token-count matrix
+- [Term Frequency-Inverse Document Frequency](https://en.wikipedia.org/wiki/Tf%E2%80%93idf) evaluates word importance
+- BERTopic introduces Class-based TF-IDF [@grootendorst_bertopic_2022]
+
+$$ \text{TF-IDF(word, cluster)} = \frac{\text{word's frequency within that cluster}}{\text{word's frequency in the entire dataset}} $$
+
+- Used [Spacy](https://spacy.io/) to remove stop words and optimize signal-to-noise ratio
+- Fed into a language model to generate concise topic labels
+
+::: {.aside}
+Equation is illustrative; actual calculations are more complex.
+:::
+
+## Argument Generation {timing=120}
+
+- Actionable insights that urge for specific actions to address issues
+- Problems and solutions proposed by participants
+- LLM synthesizes arguments from comments within each topic
+- Advocate for specific arguments urging actions to address issues
+ - Filter these arguments to derive actionable insights
+
+```{mermaid}
+%%| file: /docs/arguments.mmd
+```
+
+## Argument Scoring {timing=90}
+
+- Goal: Quantify acceptance of each generated argument
+- Task: Identify comments that support each argument
+- Count the individuals that voted positively on supporting comments
+- Calculate an "acceptance" factor to indicate the degree of consensus
+
+```{mermaid}
+%%| file: /docs/argument-support.mmd
+```
+
+## Potential Biases in Argument Generation {timing=120}
+
+- Some comments, especially those posted earlier, may receive more votes than others
+    - Use the ratio of agreement votes to total votes
+
+- Certain topics are more popular and have more comments than others
+    - Generate a balanced number of arguments for each topic
+
+- Certain controversial topics are heavily downvoted
+    - Comments: Filter by quantiles instead of fixed thresholds within each topic
+    - Arguments: Select fixed number of "best arguments" from each topic
+
+- Some people vote more than others
+    - Count the individuals that support an argument over hard vote count
+
+## Argument Mapping {timing=60}
+- Used [Argdown](https://argdown.org/) syntax to generate argument maps
+- Developed a grammar generator to convert data into Argdown format
+- Generated argument maps for each topic to visualize the structure of the debate
+
+```argdown
+===
+sourceHighlighter:
+    removeFrontMatter: true
+webComponent:
+    withoutMaximize: true
+    height: 500px
+===
+
+# Argdown Syntax Example
+
+[Statement]: Argdown is a simple syntax for defining argumentative structures, inspired by Markdown.
+  + Writing a list of **pros & cons** in Argdown is as simple as writing a twitter message.
+  + But you can also **logically reconstruct** more complex relations.
+  + You can export Argdown as a graph and create **argument maps** of whole debates.
+  - Not a tool for creating visualizations, but for **structuring arguments**.
+
+<Argument>: Argdown is an excellent tool and should be used by the city of Bowling Green, KY.
+
+[Statement]
+  +> <Argument>
+```
+
+# Results {timing=0}
+
+## Comment Moderation {.smaller timing=120}
+
+:::: {.columns}
+::: {.column width="40%"}
+
+- Accuracy generally the same
+- Unsure rate increases with complexity of task
+- Deconstruction reduces false positive rate
+- CoT not as effective as deconstruction
+- Examples must be specific to dataset
+
+#### Configurations
+- 1: Baseline
+- 2: Examples
+- 3: Thought
+- 4: Thought + Examples
+- 5: 7-class Baseline
+- 6: Thought
+- 7: Thought + Deconstruction
+- 8: Deconstruction
+- 9: Deconstruction, 3-class
+:::
+
+::: {.column width="30%"}
+![](/images/moderation-american-assembly.png){fig-align="right"}
+:::
+
+::: {.column width="30%"}
+![](/images/moderation-scoop-hivemind.biodiversity.png){fig-align="right"}
+:::
+::::
+
+## UMAP 2D Projection of Reduced Embeddings {timing=30 .smaller}
+
+:::: {.columns}
+::: {.column width="20%"}
+Final parameters:
+
+- `n_neighbors = 8`
+- `min_dist = 0`
+- `n_components = 32`
+- `metric = 'cosine'`
+:::
+
+::: {.column width="40%"}
+![UMAP Projection of `american-assembly.bowling-green` dataset](/images/umap-projection.png){fig-align="center"}
+:::
+
+::: {.column width="40%"}
+![Network connectivity graph that shows distance between high-density regions.](/images/umap-projection-2.png){fig-align="center"}
+:::
+
+::::
+
+## Topic Distribution {timing=30}
+
+![Each bar represents a topic cluster, with y-axis representing statement count; Topic `-1` is reserved for outliers that do not initially belong to a cluster.](/images/topic-distribution.png){fig-align="center" height="250px"}
+
+![Upon reassigning outliers, each topic has a larger number of statements; we reassign all topics ensuring that no statement is discarded as noise.](/images/topic-distribution-2.png){fig-align="center" height="250px"}
+
+## Statement Distribution {timing=15 transition="fade"}
+
+![](/images/topic-statement-distribution.png){fig-align="center"}
+
+## Statement Distribution after outlier reassignment {timing=15 transition="fade"}
+
+![](/images/topic-statement-distribution-2.png){fig-align="center"}
+
+## Hierarchical Topic Structure {timing=30}
+
+![](/images/topic-hierarchy.png)
+
+## Argument Generation and Scoring {timing=60}
+
+### Opioid Epidemic and Healthcare
+
+![](/images/argmap1.png)
+
+## Argument Generation and Scoring {timing=30}
+
+### Community Enrichment
+
+![](/images/argmap2.png)
+
+# Conclusion {timing=0}
+
+## LLMs in structuring online debates {timing=60}
+
+- Potential of LLMs for simple tasks
+- Chaining simple tasks for complex reasoning
+- Discovering topics in a large dataset and new generating valuable insights
+- Risk of hallucinations and incorrect output
+- Enhancing democratic processes by enabling public discourse
+- Critical need for ethical and inclusive technology deployment
+
+## Contributions to Advancing Policy Insights {timing=60}
+
+- Enhanced Moderation Techniques
+- Topic Modeling
+- Argument Generation
+- Argument Scoring and Mapping
+
+## Limitations and Challenges {timing=60}
+
+- Augmenting vs replacing human moderation processes
+- LLMs' limitations in processing complex instructions and sentences
+    - Complex instructions
+    - Relationship modeling based on double and triple negatives
+- Reliability and bias
+
+## Future Research Directions {timing=60}
+
+- Semantic extraction and reasoning during discourse
+- Exploring connections across topics
+- Generalizing techniques to platforms like [Kialo](https://www.kialo.com/), [Hacker News](https://news.ycombinator.com/)
+
+## References {timing=0}
+
+::: {#refs style="font-size: 0.9em"}
+:::

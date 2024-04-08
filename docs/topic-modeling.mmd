@@ -1,0 +1,27 @@
+graph TD
+    Vectors[Embedding Vectors]
+    ReducedVectors[Reduced Embedding Vectors]
+    Clusters[Hierarchical Clusters]
+    BagOfWords["Bag of Words (Per-Cluster)"]
+    Keywords[Significant Keywords]
+    Labels[Topic Labels]
+    Representation[Topic Representation]
+
+    subgraph DataPreparation[Data Preparation]
+        direction LR
+        Statements -- Transformers --> Vectors -- UMAP --> ReducedVectors
+    end
+
+    subgraph KeywordExtraction[Keyword Extraction]
+        direction LR
+        BagOfWords -- c-TF-IDF --> Keywords
+    end
+
+    subgraph TopicRepresentation[Topic Representation]
+        direction LR
+        Representation -- LLM --> Labels
+    end
+
+    DataPreparation -- HDBSCAN --> Clusters
+    Clusters -- Vectorizer --> KeywordExtraction
+    KeywordExtraction -- MMR + POS Filtering --> TopicRepresentation

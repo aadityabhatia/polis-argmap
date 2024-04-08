@@ -1,0 +1,19 @@
+flowchart BT
+    ind1["🙂 Alice"]
+    ind2["🙂 Bob"]
+    ind3["🙂 Charlie"]
+    ind4["🙂 Daisy"]
+    ind5["🙂 Eve"]
+    arg1["🤖 Argument \n +3, -2"]
+    s1["🙂 Comment 1 \n +3, -1"] -- SUPPORT --> arg1
+    s2["🙂 Comment 2 \n +2, -1"] -- SUPPORT --> arg1
+    ind1:::support --> s1
+    ind2:::refute --x s1
+    ind3:::support --> s1
+    ind3:::support --> s2
+    ind4:::support --> s1
+    ind4:::support --> s2
+    ind5:::refute --x s2
+
+    classDef support fill:#8c8
+    classDef refute fill:#c88

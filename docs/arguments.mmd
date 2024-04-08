@@ -1,0 +1,12 @@
+flowchart LR
+    topic[Topic Description]
+    comments[User Comments]
+    areas[Areas of Improvement]
+    agreeability([Filter by Agreeability \n 'agreeability threshold'])
+    problems[Problems Discussed]
+    solutions[Solutions Identified]
+    arguments[Actionable Insights]
+    selectTop([Select Top Insights per topic \n 'n_insights_per_topic'])
+    report[Argument Map]
+    comments --> agreeability & topic --> areas --> problems & solutions --> arguments
+    arguments --> selectTop --> report
