@@ -76,7 +76,7 @@ def score(topics, arguments, argumentCommentMap, votes):
     argumentTopicSupport = (
         argumentSupport
         .join(arguments.df.lazy(), ['topicId', 'argumentId'], 'left')
-        .join(topics.df.lazy().select(topicId=pl.col('Topic'), topicTitle='Title'), 'topicId', 'left')
+        .join(topics.df.lazy().select(topicId=pl.col('Topic'), topicTitle='Title', topicHeading='Heading'), 'topicId', 'left')
         .sort('agreeability', descending=True)
     ).collect()
 

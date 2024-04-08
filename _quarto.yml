@@ -12,11 +12,9 @@ project:
 website:
   title: ArgMap
   description: "Advancing Policy Insights: Opinion Data Analysis and Debate Structuring Using LLMs"
-  site-url: https://argmap.screaming.ninja
+  site-url: https://argmap.bhatia.dev/
   repo-url: https://github.com/aadityabhatia/polis-argmap/
   repo-actions: source
-  # reader-mode: true
-  # search: false
   page-navigation: true
   page-footer: "© 2024 Aaditya Bhatia"
   image: images/og.png
@@ -43,12 +41,9 @@ format:
         - sandstone
         - mermaid.scss
       dark:
-        # navbar: secondary
-        # - solar
         - darkly
-        # - mermaid-dark.scss
-    # mermaid:
-    #   theme: dark
+    mermaid:
+      theme: neutral
     grid:
       body-width: 1800px
 

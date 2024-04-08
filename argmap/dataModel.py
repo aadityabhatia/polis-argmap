@@ -1,5 +1,4 @@
 import polars as pl
-import sys
 import os
 
 # this allows categorical data from various sources to be combined and handled gracefully; performance cost is acceptable
@@ -38,8 +37,7 @@ class DataModel:
 
         dataPath = dataPath or os.getenv("DATA_PATH")
         self.dataset = dataset
-        table = table or self.__class__.__name__.lower()
-        self.table = table
+        self.table = table = self.table or table or self.__class__.__name__.lower()
         self.dbTable = f"{dataset}-{table}".replace('.', '-')
         self.dbURI = os.getenv("DB_CONNECTION_URI")
 
@@ -260,6 +258,7 @@ class Votes(DataModel):
 
 
 class ArgumentCommentMap(DataModel):
+    table = 'argumentCommentMap'
 
     schema = {
         'commentId': pl.UInt16,

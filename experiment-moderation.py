@@ -100,7 +100,7 @@ def guidance_moderation_comment_two_step(lm, commentId, commentText, classify_op
                 f"I should classify it as {lm['classification_thought_2']}.",
             ]
 
-            lm += f"CLASSIFICATION: " + \
+            lm += f"REASON: " + \
                 select(reject_reasons, name="classification_reason") + "\n"
             reason = lm['classification_reason']
 

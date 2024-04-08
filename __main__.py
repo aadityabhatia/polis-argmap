@@ -1,11 +1,7 @@
 from dotenv import load_dotenv
-import logging
 import argparse
-import polars as pl
-import os
 import sys
 import signal
-from argmap.helpers import printTorchDeviceVersion, printCUDAMemory, loadLanguageModel
 from tasks import getTask, taskList
 import datetime
 
@@ -31,12 +27,11 @@ if __name__ == "__main__":
         help="Comma-separated list of datasets to process",
         type=str,
         required=True,
-        default="american-assembly.bowling-green"
     )
 
     parser.add_argument(
         '--output', '-o',
-        help="Output file for logs; default is stdout",
+        help="Output file for console log; default is stdout",
         type=argparse.FileType('a'),
         default=sys.stdout
     )
@@ -68,7 +63,7 @@ if __name__ == "__main__":
 
             except Exception as e:
                 print(f"{datetime.datetime.now()} ERROR: {e}")
-                logging.error(f"{datetime.datetime.now()} {e}")
+                print(f"{datetime.datetime.now()} ERROR: {e}", file=sys.stderr)
                 import traceback
                 traceback.print_exc()
 
