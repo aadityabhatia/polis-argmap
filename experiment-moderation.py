@@ -504,6 +504,10 @@ if __name__ == "__main__":
 
     signal.signal(signal.SIGINT, signal_handler)
 
+    if '-o' in sys.argv:
+        outputFile = sys.argv[sys.argv.index('-o')+1]
+        sys.stdout = open(outputFile, 'a')
+
     printTorchDeviceVersion()
     printCUDAMemory()
 
